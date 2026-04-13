@@ -112,8 +112,7 @@ class CNN(nn.Module):
     def forward(self, x):
         x = self.features(x)
 
-        # collapse height -> sequence over width
-        x = x.mean(dim=2)  # (B, C, W)
+        x = x.mean(dim=2)
         seq_len = x.shape[-1]
 
         return x, seq_len
@@ -159,8 +158,8 @@ test_size = len(dataset) - train_size
 
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-# TEMP
-train_dataset = torch.utils.data.Subset(train_dataset, range(20000))
+# # TEMP
+# train_dataset = torch.utils.data.Subset(train_dataset, range(20000))
 
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, collate_fn=collate)
 test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False, collate_fn=collate)
