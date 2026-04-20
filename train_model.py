@@ -8,7 +8,7 @@ import kagglehub
 import os
 
 # Download latest version
-path = kagglehub.dataset_download("nibinv23/iam-handwriting-word-database")
+path = kagglehub.dataset_download("vaibhao/handwritten-characters")
 print("Path to dataset files:", path)
 
 # Check the structure so you know what's inside
