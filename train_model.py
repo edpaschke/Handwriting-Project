@@ -165,10 +165,10 @@ model = model.to(device)
 
 # Dataloader
 
-words_txt = os.path.join(path, 'words.txt') 
-img_dir   = os.path.join(path, 'words')  
-dataset = IAM_Dataset(words_txt, img_dir) 
+words_txt = os.path.join(path, 'iam_words', 'words.txt')
+img_dir   = os.path.join(path, 'iam_words', 'words')
 
+dataset = IAM_Dataset(words_txt, img_dir)
 train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 
