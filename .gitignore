@@ -1,0 +1,32 @@
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# Editor and OS files
+.vscode/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large datasets and generated outputs
+EMNIST/
+MNIST/
+data/
+outputs/
+
+# Model artifacts
+model_hub/
+*.pt
+*.pth
+*.onnx
+
+# Logs and local env files
+*.log
+.env
