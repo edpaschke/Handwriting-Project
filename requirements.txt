@@ -6,3 +6,4 @@ torchvision==0.15.1
 tqdm
 scikit-learn==1.2.2
 Pillow # Note: "PIL" is actually accessed through the "Pillow" package on PyPI.
+opencv-python==4.10.0.84
