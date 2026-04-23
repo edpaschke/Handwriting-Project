@@ -117,17 +117,20 @@ def classify_and_store(
                 if best_conf < unknown_threshold:
                     best_char = "unknown"
 
-                folder = _folder_name(best_char)
-                char_dir = output_dir / folder
-                char_dir.mkdir(parents=True, exist_ok=True)
-
-                count = char_counts.get(folder, 0)
-                char_counts[folder] = count + 1
+                folders = [_folder_name(best_char)]
+                if best_char == 'C':
+                    folders.append('c_lower')
 
                 crop  = img[y:y+h, x:x+w]
                 clean = _clean_crop(crop)
-                filename = f"{image_path.stem}_{folder}_{count:04d}.png"
-                cv2.imwrite(str(char_dir / filename), clean)
+
+                for folder in folders:
+                    char_dir = output_dir / folder
+                    char_dir.mkdir(parents=True, exist_ok=True)
+                    count = char_counts.get(folder, 0)
+                    char_counts[folder] = count + 1
+                    filename = f"{image_path.stem}_{folder}_{count:04d}.png"
+                    cv2.imwrite(str(char_dir / filename), clean)
 
     total = sum(char_counts.values())
     print(f"\nStored {total} crops across {len(char_counts)} character folders:")

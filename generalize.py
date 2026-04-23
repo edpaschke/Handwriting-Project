@@ -46,11 +46,11 @@ from classify_and_store import classify_and_store, LETTER_IMAGES_DIR
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif"}
 
 TARGET = 32
-PAD    = 10
+PAD    = 3
 
 # Fraction of generated glyphs drawn from user samples (rest from default).
 # 0.0 = ignore user,  1.0 = ignore default entirely.
-USER_WEIGHT = 0.75
+USER_WEIGHT = 0.85
 
 HERE                 = pathlib.Path(__file__).resolve().parent
 DEFAULT_LETTER_DIR   = HERE / "default_writings"  / "letter_images"
