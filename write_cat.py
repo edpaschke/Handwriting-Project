@@ -2,10 +2,13 @@ import random
 import glob
 from PIL import Image
 
+from classify_and_store import _folder_name
+
 base = "default_writings/generated_chars"
 
 def pick(letter):
-    files = glob.glob(f"{base}/{letter}/*.png")
+    folder = _folder_name(letter)
+    files = glob.glob(f"{base}/{folder}/*.png")
     return random.choice(files)
 
 images = [Image.open(pick(ch)).convert("RGB") for ch in ("C", "a", "t")]
