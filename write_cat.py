@@ -2,7 +2,7 @@ import random
 import glob
 from PIL import Image
 
-base = "default_writings/letter_images"
+base = "default_writings/generated_chars"
 
 def pick(letter):
     files = glob.glob(f"{base}/{letter}/*.png")
