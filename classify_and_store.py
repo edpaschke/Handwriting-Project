@@ -6,7 +6,7 @@ from typing import Union
 from recognize import load_model, segment, classify
 
 DEFAULT_WRITINGS_DIR = pathlib.Path(__file__).resolve().parent / "default_writings"
-LETTER_IMAGES_DIR    = pathlib.Path(__file__).resolve().parent / "letter_images"
+LETTER_IMAGES_DIR    = pathlib.Path(__file__).resolve().parent / "default_writings" / "letter_images"
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif"}
 
@@ -46,7 +46,6 @@ def classify_and_store(
         )
 
         char_counts: dict[str, int] = {}
-        im_path = "/Users/ferretdragon/Desktop/Computer_Vision/CV_Project/Handwriting-Project/default_writings/letter_images/"
 
         for line in lines:
             for x, y, w, h in line:
