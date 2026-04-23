@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handwriting Font</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0ede8;
+    color: #2c2c2c;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 28px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: #1a1a1a;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 720px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .card h2 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+
+  /* Upload area */
+  #drop-zone {
+    border: 2px dashed #c8c0b8;
+    border-radius: 10px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    color: #888;
+    font-size: 0.95rem;
+  }
+  #drop-zone.over { background: #faf5ee; border-color: #a08060; }
+  #drop-zone span { display: block; font-size: 2rem; margin-bottom: 8px; }
+  #file-input { display: none; }
+
+  #file-list {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .file-chip {
+    background: #f0ede8;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    color: #555;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: #4a3728; color: #fff; }
+  .btn-secondary { background: #e8e0d8; color: #333; }
+
+  /* Status bar */
+  #status-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: #666;
+    min-height: 24px;
+  }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid #ddd;
+    border-top-color: #4a3728;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #status-bar.running .spinner { display: block; }
+  #status-bar.done #status-text { color: #3a7a3a; }
+  #status-bar.error #status-text { color: #c0392b; }
+
+  /* Text editor */
+  #editor-wrap {
+    position: relative;
+    min-height: 120px;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    padding: 16px;
+    cursor: text;
+    background: #fdfcfb;
+    line-height: 1;
+  }
+  #editor-wrap:focus-within { border-color: #a08060; }
+
+  #hidden-input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    top: 0; left: 0;
+  }
+
+  #render-area {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1px;
+    min-height: 64px;
+  }
+
+  .char-img {
+    height: 52px;
+    width: auto;
+    display: inline-block;
+    vertical-align: bottom;
+    image-rendering: auto;
+  }
+
+  .char-fallback {
+    display: inline-block;
+    font-size: 44px;
+    line-height: 52px;
+    vertical-align: bottom;
+    color: #2c2c2c;
+    font-family: Georgia, serif;
+  }
+
+  .char-space {
+    display: inline-block;
+    width: 18px;
+  }
+
+  .char-newline {
+    width: 100%;
+    height: 8px;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 52px;
+    background: #4a3728;
+    animation: blink 1s step-end infinite;
+    vertical-align: bottom;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  #editor-hint {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #bbb;
+    font-size: 0.9rem;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  /* Legend */
+  #legend {
+    display: flex;
+    gap: 16px;
+    font-size: 0.78rem;
+    color: #999;
+    margin-top: 12px;
+  }
+  #legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-hw { background: #4a3728; }
+  .dot-fb { background: #aaa; }
+</style>
+</head>
+<body>
+
+<h1>Handwriting Font Generator</h1>
+
+<!-- Step 1: Upload -->
+<div class="card">
+  <h2>1 — Upload Handwriting Images</h2>
+  <div id="drop-zone">
+    <span>🖼</span>
+    Drop images here or click to select
+    <input type="file" id="file-input" accept="image/*" multiple>
+  </div>
+  <div id="file-list"></div>
+  <button class="btn btn-primary" id="process-btn" disabled>Process Images</button>
+  <div id="status-bar">
+    <div class="spinner"></div>
+    <span id="status-text">Upload images to begin.</span>
+  </div>
+</div>
+
+<!-- Step 2: Type -->
+<div class="card">
+  <h2>2 — Type with Your Handwriting</h2>
+  <div id="editor-wrap">
+    <input type="text" id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div id="render-area"></div>
+    <div id="editor-hint">Click here and start typing…</div>
+  </div>
+  <div id="legend">
+    <span><div class="dot dot-hw"></div> Your handwriting</span>
+    <span><div class="dot dot-fb"></div> Fallback font</span>
+  </div>
+</div>
+
+<script>
+// --- State ---
+let availableChars = new Set();
+let charTokens = []; // {type: 'img'|'text'|'space'|'newline', char?, src?}
+let pollTimer = null;
+
+// --- Init ---
+async function init() {
+  await refreshChars();
+  checkExistingStatus();
+}
+
+async function refreshChars() {
+  const res = await fetch('/chars');
+  const list = await res.json();
+  availableChars = new Set(list);
+}
+
+async function checkExistingStatus() {
+  const res = await fetch('/status');
+  const data = await res.json();
+  applyStatus(data);
+}
+
+// --- Upload / Drop Zone ---
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const fileList = document.getElementById('file-list');
+const processBtn = document.getElementById('process-btn');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('over');
+  handleFiles([...e.dataTransfer.files]);
+});
+fileInput.addEventListener('change', () => handleFiles([...fileInput.files]));
+
+async function handleFiles(files) {
+  const form = new FormData();
+  files.forEach(f => form.append('images', f));
+  const res = await fetch('/upload', { method: 'POST', body: form });
+  const data = await res.json();
+  data.saved.forEach(name => {
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    chip.textContent = name;
+    fileList.appendChild(chip);
+  });
+  if (data.saved.length > 0) processBtn.disabled = false;
+}
+
+// --- Process ---
+processBtn.addEventListener('click', async () => {
+  processBtn.disabled = true;
+  const res = await fetch('/process', { method: 'POST' });
+  if (!res.ok) {
+    processBtn.disabled = false;
+    return;
+  }
+  startPolling();
+});
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    const res = await fetch('/status');
+    const data = await res.json();
+    applyStatus(data);
+    if (data.state === 'done' || data.state === 'error') {
+      clearInterval(pollTimer);
+      if (data.state === 'done') {
+        await refreshChars();
+        renderTokens(); // re-render with newly available chars
+      }
+      processBtn.disabled = false;
+    }
+  }, 1500);
+}
+
+function applyStatus(data) {
+  const bar = document.getElementById('status-bar');
+  const text = document.getElementById('status-text');
+  bar.className = data.state;
+  text.textContent = data.message;
+}
+
+// --- Editor ---
+const editorWrap = document.getElementById('editor-wrap');
+const hiddenInput = document.getElementById('hidden-input');
+const renderArea = document.getElementById('render-area');
+const editorHint = document.getElementById('editor-hint');
+
+editorWrap.addEventListener('click', () => hiddenInput.focus());
+
+hiddenInput.addEventListener('keydown', e => {
+  if (e.key === 'Backspace') {
+    e.preventDefault();
+    charTokens.pop();
+    renderTokens();
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    charTokens.push({ type: 'newline' });
+    renderTokens();
+  }
+});
+
+hiddenInput.addEventListener('input', e => {
+  const val = hiddenInput.value;
+  hiddenInput.value = '';
+  for (const ch of val) {
+    if (ch === ' ') {
+      charTokens.push({ type: 'space' });
+    } else if (availableChars.has(ch)) {
+      // Append random cache-buster so same char can look different each keystroke
+      charTokens.push({ type: 'img', char: ch, src: `/char/${encodeURIComponent(ch)}?r=${Math.random()}` });
+    } else {
+      charTokens.push({ type: 'text', char: ch });
+    }
+  }
+  renderTokens();
+});
+
+function renderTokens() {
+  renderArea.innerHTML = '';
+  editorHint.style.display = charTokens.length === 0 ? 'block' : 'none';
+
+  charTokens.forEach(tok => {
+    if (tok.type === 'newline') {
+      const br = document.createElement('div');
+      br.className = 'char-newline';
+      renderArea.appendChild(br);
+    } else if (tok.type === 'space') {
+      const sp = document.createElement('span');
+      sp.className = 'char-space';
+      renderArea.appendChild(sp);
+    } else if (tok.type === 'img') {
+      const img = document.createElement('img');
+      img.className = 'char-img';
+      img.src = tok.src;
+      img.alt = tok.char;
+      img.title = tok.char;
+      // On load error fall back to text
+      img.onerror = () => {
+        const span = document.createElement('span');
+        span.className = 'char-fallback';
+        span.textContent = tok.char;
+        img.replaceWith(span);
+      };
+      renderArea.appendChild(img);
+    } else {
+      const span = document.createElement('span');
+      span.className = 'char-fallback';
+      span.textContent = tok.char;
+      renderArea.appendChild(span);
+    }
+  });
+
+  // Blinking cursor
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  renderArea.appendChild(cursor);
+}
+
+init();
+</script>
+</body>
+</html>
