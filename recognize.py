@@ -236,7 +236,7 @@ def _line_to_text(line_items, letter_spacing=0, word_gap_scale=1.8):
 
     median_gap   = float(np.median(gaps))   if gaps   else 0.0
     median_width = float(np.median(widths)) if widths else 0.0
-    space_threshold = max(6.0, median_gap * word_gap_scale, median_width * 0.35)
+    space_threshold = max(6.0, median_gap * word_gap_scale, median_width * 0.25)
 
     chars, confidences = [], []
     for i, (_, ch, conf) in enumerate(line_items):
